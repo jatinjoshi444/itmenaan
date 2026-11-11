@@ -1,10 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
-// import { Link } from "react-router";
 import Link from "next/link";
 import { img } from "../images";
 import { Cta, MountainMark, Reveal } from "../ui";
-import { Prose, usePageTitle } from "../components/shared";
+import { Prose } from "../components/shared";
 
 const defaultPanels = [
   {
@@ -31,11 +30,15 @@ const defaultPanels = [
 ];
 
 export default function Home() {
-  usePageTitle("Itmenaan Estate | Boutique Himalayan Retreat in Kumaon");
-
   const [pageData, setPageData] = useState<any>(null);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
+    if (typeof document !== "undefined") {
+      document.title = "Itmenaan Estate | Boutique Himalayan Retreat in Kumaon";
+    }
+
     fetch('/api/globals/homepage')
       .then((res) => res.json())
       .then((data) => {
@@ -146,6 +149,9 @@ export default function Home() {
   ]);
   const journeyCtaText = pageData?.journeySection?.ctaText || "Book Your Stay";
   const journeyCtaPath = pageData?.journeySection?.ctaPath || "book";
+
+  // Prevent prerendering crash during server build
+  if (!isClient) return null;
 
   return (
     <>
