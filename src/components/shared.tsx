@@ -23,19 +23,15 @@ export function Prose({ p, className = "" }: { p: string[]; className?: string }
   );
 }
 
-export function SubNav() {
-  const [mounted, setMounted] = useState(false);
+
+
+function SubNavContent() {
   const location = useLocation();
+  const pathname = location?.pathname || "";
   const [subPages, setSubPages] = useState<{ label: string; to: string }[]>([]);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const pathname = location?.pathname || "";
-
-  useEffect(() => {
-    if (!mounted || !pathname) return;
+    if (!pathname) return;
     const controller = new AbortController();
 
     const loadSubNav = async () => {
@@ -150,9 +146,9 @@ export function SubNav() {
     loadSubNav();
 
     return () => controller.abort();
-  }, [mounted, pathname]);
+  }, [pathname]);
 
-  if (!mounted || subPages.length === 0) return null;
+  if (subPages.length === 0) return null;
 
   return (
     <nav className="subnav" aria-label="Section">
@@ -167,6 +163,18 @@ export function SubNav() {
       ))}
     </nav>
   );
+}
+
+export function SubNav() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
+  return <SubNavContent />;
 }
 
 export type RowItem = {
