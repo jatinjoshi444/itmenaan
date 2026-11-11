@@ -121,28 +121,28 @@ function DynamicExperiencePage() {
   return <ContentPage data={pageData} />;
 }
 
-export const router =
-  typeof window !== "undefined"
-    ? createBrowserRouter([
+
+export function createAppRouter() {
+  return createBrowserRouter([
+    {
+      path: "/",
+      Component: Layout,
+      children: [
+        { index: true, Component: Home },
+        ...pages.map((page) => ({
+          path: page.path.slice(1),
+          element: <ContentPage data={page} />,
+        })),
         {
-          path: "/",
-          Component: Layout,
-          children: [
-            { index: true, Component: Home },
-            ...pages.map((page) => ({
-              path: page.path.slice(1),
-              element: <ContentPage data={page} />,
-            })),
-            {
-              path: "experiences/:slug",
-              Component: DynamicExperiencePage,
-            },
-            {
-              path: "journal/:slug",
-              Component: JournalSinglePage,
-            },
-            { path: "*", Component: NotFound },
-          ],
+          path: "experiences/:slug",
+          Component: DynamicExperiencePage,
         },
-      ])
-    : ({} as any);
+        {
+          path: "journal/:slug",
+          Component: JournalSinglePage,
+        },
+        { path: "*", Component: NotFound },
+      ],
+    },
+  ]);
+}

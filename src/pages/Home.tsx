@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Link } from "react-router";
+// import { Link } from "react-router";
+import Link from "next/link";
 import { img } from "../images";
 import { Cta, MountainMark, Reveal } from "../ui";
 import { Prose, usePageTitle } from "../components/shared";
@@ -194,7 +195,7 @@ export default function Home() {
         <div className="panel-grid">
           {panels.map((p: any, i: number) => (
             <Reveal key={p.h} className={`panel p${i}`} as="article">
-              <Link to={p.to} className="panel-img" aria-label={p.h}>
+              <Link href={p.to} className="panel-img" aria-label={p.h}>
                 <img src={p.img} alt="" loading="lazy" />
               </Link>
               <div className="panel-copy">
