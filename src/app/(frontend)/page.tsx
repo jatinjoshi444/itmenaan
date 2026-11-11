@@ -1,6 +1,13 @@
+
 'use client'
+
+import dynamic from 'next/dynamic'
 import '../../index.css'
-import App from '../../App'
+
+const App = dynamic(() => import('../../App'), {
+  ssr: false,
+  loading: () => null,
+})
 
 export default function Home() {
   return <App />
