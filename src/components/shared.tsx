@@ -24,22 +24,29 @@ export function Prose({ p, className = "" }: { p: string[]; className?: string }
 }
 
 export function SubNav() {
-  const { pathname } = useLocation();
+  const [mounted, setMounted] = useState(false);
+  const location = useLocation();
   const [subPages, setSubPages] = useState<{ label: string; to: string }[]>([]);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const pathname = location?.pathname || "";
+
+  useEffect(() => {
+    if (!mounted || !pathname) return;
     const controller = new AbortController();
 
     const loadSubNav = async () => {
       try {
-        if (pathname.startsWith("/experiences")) {
+        if (pathname === "/experiences" || pathname.startsWith("/experiences/")) {
           const response = await fetch(
             "/api/experiences?limit=100&depth=1&sort=sortOrder",
             { signal: controller.signal }
           );
 
           if (!response.ok) throw new Error("Experience navigation failed");
-
           const data = await response.json();
 
           const experienceLinks = (data.docs || [])
@@ -57,18 +64,16 @@ export function SubNav() {
             { label: "Overview", to: "/experiences" },
             ...experienceLinks,
           ]);
-
           return;
         }
 
-        if (pathname.startsWith("/our-world")) {
+        if (pathname === "/our-world" || pathname.startsWith("/our-world/")) {
           const response = await fetch(
             "/api/our-world-sub-pages?limit=100",
             { signal: controller.signal }
           );
 
           const data = await response.json();
-
           const subs = (data.docs || [])
             .filter((doc: any) => doc.showInSubNav !== false)
             .map((doc: any) => {
@@ -83,18 +88,16 @@ export function SubNav() {
             { label: "Overview", to: "/our-world" },
             ...subs,
           ]);
-
           return;
         }
 
-        if (pathname.startsWith("/the-lodge")) {
+        if (pathname === "/the-lodge" || pathname.startsWith("/the-lodge/")) {
           const response = await fetch(
             "/api/lodge-sub-pages?limit=100",
             { signal: controller.signal }
           );
 
           const data = await response.json();
-
           const subs = (data.docs || [])
             .filter((doc: any) => doc.showInSubNav !== false)
             .map((doc: any) => {
@@ -109,18 +112,16 @@ export function SubNav() {
             { label: "The Philosophy", to: "/the-lodge" },
             ...subs,
           ]);
-
           return;
         }
 
-        if (pathname.startsWith("/stay")) {
+        if (pathname === "/stay" || pathname.startsWith("/stay/")) {
           const response = await fetch(
             "/api/stays?limit=100",
             { signal: controller.signal }
           );
 
           const data = await response.json();
-
           const subs = (data.docs || [])
             .filter((doc: any) => doc.showInSubNav !== false)
             .map((doc: any) => {
@@ -135,7 +136,6 @@ export function SubNav() {
             { label: "Overview", to: "/stay" },
             ...subs,
           ]);
-
           return;
         }
 
@@ -150,9 +150,9 @@ export function SubNav() {
     loadSubNav();
 
     return () => controller.abort();
-  }, [pathname]);
+  }, [mounted, pathname]);
 
-  if (subPages.length === 0) return null;
+  if (!mounted || subPages.length === 0) return null;
 
   return (
     <nav className="subnav" aria-label="Section">
