@@ -4,6 +4,8 @@ import path from 'path'
 import { buildConfig, CollectionConfig, GlobalConfig } from 'payload'
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
+import { Enquiries } from './collections/Enquiries';
+import { NewsletterSubscriptions } from './collections/NewsletterSubscriptions';
 
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
@@ -68,21 +70,29 @@ const Experiences: CollectionConfig = {
           fields: [{ name: 'text', type: 'textarea' }],
         },
         {
-          name: 'galleryImages',
-          type: 'array',
-          fields: [
-            { name: 'image', type: 'upload', relationTo: 'media' },
-          ],
-        },
+  name: 'galleryImage',
+  type: 'upload',
+  relationTo: 'media',
+  label: 'Block Image',
+},
       ],
     },
     {
-      name: 'gallery',
+  name: 'discoveries',
+  type: 'group',
+  fields: [
+    { name: 'eyebrow', type: 'text' },
+    { name: 'title', type: 'text' },
+    { name: 'intro', type: 'textarea' },
+    {
+      name: 'items',
       type: 'array',
       fields: [
-        { name: 'image', type: 'upload', relationTo: 'media' },
-      ],
-    },
+        { name: 'title', type: 'text', required: true }
+      ]
+    }
+  ]
+},
     {
       name: 'links',
       type: 'array',
@@ -147,7 +157,12 @@ const Stays: CollectionConfig = {
         { name: 'h', type: 'text' },
         { name: 'sub', type: 'text' },
         { name: 'p', type: 'array', fields: [{ name: 'text', type: 'textarea' }] },
-        { name: 'galleryImages', type: 'array', fields: [{ name: 'image', type: 'upload', relationTo: 'media' }] }
+        {
+  name: 'galleryImage',
+  type: 'upload',
+  relationTo: 'media',
+  label: 'Block Image',
+}
       ],
     },
     {
@@ -219,12 +234,11 @@ const LodgeSubPages: CollectionConfig = {
           fields: [{ name: 'text', type: 'textarea' }] 
         },
         {
-          name: 'galleryImages',
-          type: 'array',
-          fields: [
-            { name: 'image', type: 'upload', relationTo: 'media' }
-          ]
-        }
+  name: 'galleryImage',
+  type: 'upload',
+  relationTo: 'media',
+  label: 'Block Image',
+}
       ],
     },
     {
@@ -623,13 +637,12 @@ const TheLodgePageGlobal: GlobalConfig = {
           type: 'array', 
           fields: [{ name: 'text', type: 'textarea' }] 
         },
-        {
-          name: 'galleryImages',
-          type: 'array',
-          fields: [
-            { name: 'image', type: 'upload', relationTo: 'media' }
-          ]
-        }
+       {
+  name: 'galleryImage',
+  type: 'upload',
+  relationTo: 'media',
+  label: 'Block Image',
+},
       ],
       defaultValue: [
         {
@@ -720,12 +733,11 @@ const KumaonKitchenPageGlobal: GlobalConfig = {
           fields: [{ name: 'text', type: 'textarea' }] 
         },
         {
-          name: 'galleryImages',
-          type: 'array',
-          fields: [
-            { name: 'image', type: 'upload', relationTo: 'media' }
-          ]
-        }
+  name: 'galleryImage',
+  type: 'upload',
+  relationTo: 'media',
+  label: 'Block Image',
+}
       ],
       defaultValue: [
         {
@@ -929,6 +941,34 @@ const ExperiencesPageGlobal: GlobalConfig = {
       ],
     },
     {
+  name: 'compendium',
+  type: 'group',
+  fields: [
+    { name: 'eyebrow', type: 'text', defaultValue: 'THE COMPLETE GUIDE' },
+    { name: 'title', type: 'text', defaultValue: 'Experiences & discoveries.' },
+    { name: 'intro', type: 'textarea' },
+    {
+      name: 'categories',
+      type: 'array',
+      fields: [
+        { name: 'number', type: 'text' },
+        { name: 'title', type: 'text', required: true },
+        { name: 'description', type: 'textarea' },
+        { name: 'image', type: 'upload', relationTo: 'media' },
+        {
+  name: 'items',
+  type: 'array',
+  fields: [
+    { name: 'title', type: 'text', required: true }
+  ]
+},
+{ name: 'buttonLabel', type: 'text', defaultValue: 'Discover' },
+{ name: 'buttonUrl', type: 'text' }
+      ]
+    }
+  ]
+},
+    {
       name: 'ctaBand',
       type: 'group',
       fields: [
@@ -979,10 +1019,11 @@ const OurWorldPage: GlobalConfig = {
         { name: 'subtitle', type: 'text' },
         { name: 'p', type: 'array', fields: [{ name: 'text', type: 'text' }] },
         {
-          name: 'galleryImages',
-          type: 'array',
-          fields: [{ name: 'image', type: 'upload', relationTo: 'media' }],
-        },
+  name: 'galleryImage',
+  type: 'upload',
+  relationTo: 'media',
+  label: 'Block Image',
+},
       ],
     },
     {
@@ -1198,6 +1239,72 @@ const ContactPage: GlobalConfig = {
 }
 
 
+const BookPageGlobal: GlobalConfig = {
+  slug: 'book-page',
+  label: 'Book Page',
+  admin: {
+    group: 'Pages',
+  },
+  access: {
+    read: () => true,
+  },
+  fields: [
+    { name: 'seoTitle', type: 'text' },
+    {
+      name: 'hero',
+      type: 'group',
+      fields: [
+        { name: 'eyebrow', type: 'text' },
+        { name: 'h1', type: 'text' },
+        { name: 'mode', type: 'select', options: ['full', 'split'], defaultValue: 'split' },
+        { name: 'image', type: 'upload', relationTo: 'media' },
+        {
+          name: 'lede',
+          type: 'array',
+          fields: [{ name: 'text', type: 'textarea' }],
+        },
+      ],
+    },
+    {
+      name: 'bookingSection',
+      type: 'group',
+      fields: [
+        { name: 'eyebrow', type: 'text', defaultValue: 'Check availability' },
+        { name: 'title', type: 'text', defaultValue: 'Choose your dates.' },
+        { name: 'formHeading', type: 'text', defaultValue: 'Plan your stay' },
+        { name: 'successMessage', type: 'text', defaultValue: 'Our reservations team will be in touch shortly.' },
+        {
+          name: 'links',
+          type: 'array',
+          fields: [
+            { name: 'label', type: 'text' },
+            { name: 'url', type: 'text' },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'blocks',
+      type: 'array',
+      fields: [
+        { name: 'h', type: 'text' },
+        { name: 'sub', type: 'text' },
+        {
+          name: 'p',
+          type: 'array',
+          fields: [{ name: 'text', type: 'textarea' }],
+        },
+        {
+          name: 'galleryImages',
+          type: 'array',
+          fields: [{ name: 'image', type: 'upload', relationTo: 'media' }],
+        },
+      ],
+    },
+  ],
+};
+
+
 const HeaderNavigationGlobal: GlobalConfig = {
   slug: 'header-navigation',
   label: 'Header Navigation',
@@ -1379,8 +1486,8 @@ export default buildConfig({
     user: Users.slug,
     importMap: { baseDir: path.resolve(dirname) },
   },
-  collections: [Users, Media, Experiences, Stays, LodgeSubPages, OurWorldSubPages, Journal, ],
-  globals: [HomepageGlobal, TheLodgePageGlobal, KumaonKitchenPageGlobal, StaysPageGlobal, ExperiencesPageGlobal,OurWorldPage,JourneysPage,JournalPage, ContactPage, HeaderNavigationGlobal, FooterGlobal],
+  collections: [Users, Media, Experiences, Stays, LodgeSubPages, OurWorldSubPages, Journal, Enquiries, NewsletterSubscriptions, ],
+  globals: [HomepageGlobal, TheLodgePageGlobal, KumaonKitchenPageGlobal, StaysPageGlobal, ExperiencesPageGlobal,OurWorldPage,JourneysPage,JournalPage, ContactPage, BookPageGlobal,HeaderNavigationGlobal, FooterGlobal],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },

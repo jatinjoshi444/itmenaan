@@ -74,6 +74,8 @@ export interface Config {
     'lodge-sub-pages': LodgeSubPage;
     'our-world-sub-pages': OurWorldSubPage;
     journal: Journal;
+    enquiries: Enquiry;
+    'newsletter-subscriptions': NewsletterSubscription;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -88,6 +90,8 @@ export interface Config {
     'lodge-sub-pages': LodgeSubPagesSelect<false> | LodgeSubPagesSelect<true>;
     'our-world-sub-pages': OurWorldSubPagesSelect<false> | OurWorldSubPagesSelect<true>;
     journal: JournalSelect<false> | JournalSelect<true>;
+    enquiries: EnquiriesSelect<false> | EnquiriesSelect<true>;
+    'newsletter-subscriptions': NewsletterSubscriptionsSelect<false> | NewsletterSubscriptionsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -107,6 +111,7 @@ export interface Config {
     'journeys-page': JourneysPage;
     'journal-page': JournalPage;
     'contact-page': ContactPage;
+    'book-page': BookPage;
     'header-navigation': HeaderNavigation;
     footer: Footer;
   };
@@ -120,6 +125,7 @@ export interface Config {
     'journeys-page': JourneysPageSelect<false> | JourneysPageSelect<true>;
     'journal-page': JournalPageSelect<false> | JournalPageSelect<true>;
     'contact-page': ContactPageSelect<false> | ContactPageSelect<true>;
+    'book-page': BookPageSelect<false> | BookPageSelect<true>;
     'header-navigation': HeaderNavigationSelect<false> | HeaderNavigationSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
   };
@@ -242,21 +248,21 @@ export interface Experience {
               id?: string | null;
             }[]
           | null;
-        galleryImages?:
-          | {
-              image?: (number | null) | Media;
-              id?: string | null;
-            }[]
-          | null;
+        galleryImage?: (number | null) | Media;
         id?: string | null;
       }[]
     | null;
-  gallery?:
-    | {
-        image?: (number | null) | Media;
-        id?: string | null;
-      }[]
-    | null;
+  discoveries?: {
+    eyebrow?: string | null;
+    title?: string | null;
+    intro?: string | null;
+    items?:
+      | {
+          title: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
   links?:
     | {
         label: string;
@@ -318,12 +324,7 @@ export interface Stay {
               id?: string | null;
             }[]
           | null;
-        galleryImages?:
-          | {
-              image?: (number | null) | Media;
-              id?: string | null;
-            }[]
-          | null;
+        galleryImage?: (number | null) | Media;
         id?: string | null;
       }[]
     | null;
@@ -381,12 +382,7 @@ export interface LodgeSubPage {
               id?: string | null;
             }[]
           | null;
-        galleryImages?:
-          | {
-              image?: (number | null) | Media;
-              id?: string | null;
-            }[]
-          | null;
+        galleryImage?: (number | null) | Media;
         id?: string | null;
       }[]
     | null;
@@ -496,6 +492,35 @@ export interface Journal {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "enquiries".
+ */
+export interface Enquiry {
+  id: number;
+  type?: string | null;
+  name: string;
+  email: string;
+  phone?: string | null;
+  arrival?: string | null;
+  departure?: string | null;
+  guests?: string | null;
+  interest?: string | null;
+  message?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "newsletter-subscriptions".
+ */
+export interface NewsletterSubscription {
+  id: number;
+  email: string;
+  active?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -545,6 +570,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'journal';
         value: number | Journal;
+      } | null)
+    | ({
+        relationTo: 'enquiries';
+        value: number | Enquiry;
+      } | null)
+    | ({
+        relationTo: 'newsletter-subscriptions';
+        value: number | NewsletterSubscription;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -679,19 +712,21 @@ export interface ExperiencesSelect<T extends boolean = true> {
               text?: T;
               id?: T;
             };
-        galleryImages?:
-          | T
-          | {
-              image?: T;
-              id?: T;
-            };
+        galleryImage?: T;
         id?: T;
       };
-  gallery?:
+  discoveries?:
     | T
     | {
-        image?: T;
-        id?: T;
+        eyebrow?: T;
+        title?: T;
+        intro?: T;
+        items?:
+          | T
+          | {
+              title?: T;
+              id?: T;
+            };
       };
   links?:
     | T
@@ -760,12 +795,7 @@ export interface StaysSelect<T extends boolean = true> {
               text?: T;
               id?: T;
             };
-        galleryImages?:
-          | T
-          | {
-              image?: T;
-              id?: T;
-            };
+        galleryImage?: T;
         id?: T;
       };
   ctaBand?:
@@ -828,12 +858,7 @@ export interface LodgeSubPagesSelect<T extends boolean = true> {
               text?: T;
               id?: T;
             };
-        galleryImages?:
-          | T
-          | {
-              image?: T;
-              id?: T;
-            };
+        galleryImage?: T;
         id?: T;
       };
   links?:
@@ -942,6 +967,33 @@ export interface JournalSelect<T extends boolean = true> {
               blockName?: T;
             };
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "enquiries_select".
+ */
+export interface EnquiriesSelect<T extends boolean = true> {
+  type?: T;
+  name?: T;
+  email?: T;
+  phone?: T;
+  arrival?: T;
+  departure?: T;
+  guests?: T;
+  interest?: T;
+  message?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "newsletter-subscriptions_select".
+ */
+export interface NewsletterSubscriptionsSelect<T extends boolean = true> {
+  email?: T;
+  active?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1127,12 +1179,7 @@ export interface TheLodgePage {
               id?: string | null;
             }[]
           | null;
-        galleryImages?:
-          | {
-              image?: (number | null) | Media;
-              id?: string | null;
-            }[]
-          | null;
+        galleryImage?: (number | null) | Media;
         id?: string | null;
       }[]
     | null;
@@ -1181,12 +1228,7 @@ export interface KumaonKitchenPage {
               id?: string | null;
             }[]
           | null;
-        galleryImages?:
-          | {
-              image?: (number | null) | Media;
-              id?: string | null;
-            }[]
-          | null;
+        galleryImage?: (number | null) | Media;
         id?: string | null;
       }[]
     | null;
@@ -1327,6 +1369,28 @@ export interface ExperiencesPage {
         id?: string | null;
       }[]
     | null;
+  compendium?: {
+    eyebrow?: string | null;
+    title?: string | null;
+    intro?: string | null;
+    categories?:
+      | {
+          number?: string | null;
+          title: string;
+          description?: string | null;
+          image?: (number | null) | Media;
+          items?:
+            | {
+                title: string;
+                id?: string | null;
+              }[]
+            | null;
+          buttonLabel?: string | null;
+          buttonUrl?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
   ctaBand?: {
     h?: string | null;
     p?: string | null;
@@ -1370,12 +1434,7 @@ export interface OurWorldPage {
               id?: string | null;
             }[]
           | null;
-        galleryImages?:
-          | {
-              image?: (number | null) | Media;
-              id?: string | null;
-            }[]
-          | null;
+        galleryImage?: (number | null) | Media;
         id?: string | null;
       }[]
     | null;
@@ -1541,6 +1600,60 @@ export interface ContactPage {
     phoneHref?: string | null;
     email?: string | null;
   };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "book-page".
+ */
+export interface BookPage {
+  id: number;
+  seoTitle?: string | null;
+  hero?: {
+    eyebrow?: string | null;
+    h1?: string | null;
+    mode?: ('full' | 'split') | null;
+    image?: (number | null) | Media;
+    lede?:
+      | {
+          text?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  bookingSection?: {
+    eyebrow?: string | null;
+    title?: string | null;
+    formHeading?: string | null;
+    successMessage?: string | null;
+    links?:
+      | {
+          label?: string | null;
+          url?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  blocks?:
+    | {
+        h?: string | null;
+        sub?: string | null;
+        p?:
+          | {
+              text?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        galleryImages?:
+          | {
+              image?: (number | null) | Media;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1787,12 +1900,7 @@ export interface TheLodgePageSelect<T extends boolean = true> {
               text?: T;
               id?: T;
             };
-        galleryImages?:
-          | T
-          | {
-              image?: T;
-              id?: T;
-            };
+        galleryImage?: T;
         id?: T;
       };
   ctaBand?:
@@ -1845,12 +1953,7 @@ export interface KumaonKitchenPageSelect<T extends boolean = true> {
               text?: T;
               id?: T;
             };
-        galleryImages?:
-          | T
-          | {
-              image?: T;
-              id?: T;
-            };
+        galleryImage?: T;
         id?: T;
       };
   ctaBand?:
@@ -2002,6 +2105,30 @@ export interface ExperiencesPageSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  compendium?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+        intro?: T;
+        categories?:
+          | T
+          | {
+              number?: T;
+              title?: T;
+              description?: T;
+              image?: T;
+              items?:
+                | T
+                | {
+                    title?: T;
+                    id?: T;
+                  };
+              buttonLabel?: T;
+              buttonUrl?: T;
+              id?: T;
+            };
+      };
   ctaBand?:
     | T
     | {
@@ -2052,12 +2179,7 @@ export interface OurWorldPageSelect<T extends boolean = true> {
               text?: T;
               id?: T;
             };
-        galleryImages?:
-          | T
-          | {
-              image?: T;
-              id?: T;
-            };
+        galleryImage?: T;
         id?: T;
       };
   links?:
@@ -2235,6 +2357,64 @@ export interface ContactPageSelect<T extends boolean = true> {
         phone?: T;
         phoneHref?: T;
         email?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "book-page_select".
+ */
+export interface BookPageSelect<T extends boolean = true> {
+  seoTitle?: T;
+  hero?:
+    | T
+    | {
+        eyebrow?: T;
+        h1?: T;
+        mode?: T;
+        image?: T;
+        lede?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+      };
+  bookingSection?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+        formHeading?: T;
+        successMessage?: T;
+        links?:
+          | T
+          | {
+              label?: T;
+              url?: T;
+              id?: T;
+            };
+      };
+  blocks?:
+    | T
+    | {
+        h?: T;
+        sub?: T;
+        p?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+        galleryImages?:
+          | T
+          | {
+              image?: T;
+              id?: T;
+            };
+        id?: T;
       };
   updatedAt?: T;
   createdAt?: T;

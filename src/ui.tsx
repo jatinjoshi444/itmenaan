@@ -107,43 +107,88 @@ const interests = [
   "A longer journey through Kumaon",
 ];
 
-export function EnquiryForm({ mode, onDone }: { mode: BookingMode; onDone?: () => void }) {
+export function EnquiryForm({
+  mode,
+  onDone,
+  title,
+  successMessage,
+}: {
+  mode: BookingMode;
+  onDone?: () => void;
+  title?: string;
+  successMessage?: string;
+}) {
   const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+    const data = {
+      arrival: formData.get("arrival"),
+      departure: formData.get("departure"),
+      guests: formData.get("guests"),
+      interest: formData.get("interest"),
+      name: formData.get("name"),
+      phone: formData.get("phone"),
+      email: formData.get("email"),
+      message: formData.get("message"),
+      type: mode, 
+    };
+
+    try {
+      const res = await fetch("/api/enquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (res.ok) {
+        setSent(true);
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Network error.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (sent) {
     return (
       <div className="thank-you">
         <MountainMark />
         <p className="eyebrow">Thank you</p>
         <h2>Your journey begins here.</h2>
-        <p>Our reservations team will be in touch shortly.</p>
+        <p>{successMessage || "Our reservations team will be in touch shortly."}</p>
         <button type="button" className="primary-button" onClick={() => (onDone ? onDone() : setSent(false))}>
           {onDone ? "Return to Itmenaan" : "Send another"}
         </button>
       </div>
     );
   }
+
   return (
-    <form
-      className="form"
-      onSubmit={(e) => {
-        e.preventDefault();
-        setSent(true);
-      }}
-    >
+    <form className="form" onSubmit={handleSubmit}>
+      {title && <p className="eyebrow">{title}</p>}
       <div className="field-row">
         <label>
           Arrival
-          <input type="date" required={mode === "book"} />
+          <input type="date" name="arrival" required={mode === "book"} />
         </label>
         <label>
           Departure
-          <input type="date" required={mode === "book"} />
+          <input type="date" name="departure" required={mode === "book"} />
         </label>
       </div>
       <div className="field-row">
         <label>
           Guests
-          <select defaultValue="2">
+          <select name="guests" defaultValue="2">
             <option>1</option>
             <option>2</option>
             <option>3</option>
@@ -153,7 +198,7 @@ export function EnquiryForm({ mode, onDone }: { mode: BookingMode; onDone?: () =
         </label>
         <label>
           I am interested in
-          <select defaultValue={interests[0]}>
+          <select name="interest" defaultValue={interests[0]}>
             {interests.map((i) => (
               <option key={i}>{i}</option>
             ))}
@@ -163,49 +208,90 @@ export function EnquiryForm({ mode, onDone }: { mode: BookingMode; onDone?: () =
       <div className="field-row">
         <label>
           Your name
-          <input type="text" required autoComplete="name" />
+          <input type="text" name="name" required autoComplete="name" />
         </label>
         <label>
           Phone
-          <input type="tel" autoComplete="tel" />
+          <input type="tel" name="phone" autoComplete="tel" />
         </label>
       </div>
       <label>
         Email
-        <input type="email" required placeholder="you@example.com" autoComplete="email" />
+        <input type="email" name="email" required placeholder="you@example.com" autoComplete="email" />
       </label>
       {mode === "enquire" && (
         <label>
           Anything you would like us to know
-          <textarea rows={3} />
+          <textarea name="message" rows={3} />
         </label>
       )}
-      <button className="primary-button" type="submit">
-        {mode === "book" ? "Check availability" : "Send enquiry"} <Arrow />
+      <button className="primary-button" type="submit" disabled={loading}>
+        {loading ? "Sending..." : mode === "book" ? "Check availability" : "Send enquiry"} <Arrow />
       </button>
     </form>
   );
 }
 
+
 export function Newsletter({ dark = false }: { dark?: boolean }) {
   const [done, setDone] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    const formData = new FormData(e.currentTarget);
+    const email = String(formData.get("email") || "").trim();
+
+    try {
+      const res = await fetch("/api/newsletter-subscriptions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Subscription failed. Please try again.");
+      }
+
+      setDone(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <form
       className={`newsletter ${dark ? "on-dark" : ""}`}
-      onSubmit={(e) => {
-        e.preventDefault();
-        setDone(true);
-      }}
+      onSubmit={handleSubmit}
     >
-      <label htmlFor={dark ? "nl-footer" : "nl-main"}>{done ? "Thank you. A letter will find you soon." : "Your email address"}</label>
+      <label htmlFor={dark ? "nl-footer" : "nl-main"}>
+        {done ? "Thank you. A letter will find you soon." : "Your email address"}
+      </label>
+
       {!done && (
         <div>
-          <input id={dark ? "nl-footer" : "nl-main"} type="email" placeholder="you@example.com" required />
-          <button aria-label="Subscribe to Letters from Itmenaan">
-            <Arrow />
+          <input
+            id={dark ? "nl-footer" : "nl-main"}
+            name="email"
+            type="email"
+            placeholder="you@example.com"
+            required
+            disabled={loading}
+          />
+          <button type="submit" disabled={loading} aria-label="Subscribe to Letters from Itmenaan">
+            {loading ? "..." : <Arrow />}
           </button>
         </div>
       )}
+
+      {error && <p role="alert">{error}</p>}
     </form>
   );
 }
+

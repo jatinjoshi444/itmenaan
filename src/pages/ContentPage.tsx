@@ -82,48 +82,50 @@ function Lede({ p }: { p: string[] }) {
   );
 }
 
+
 function Blocks({ d, blockGallery = false }: { d: any; blockGallery?: boolean }) {
   const blocks = d.blocks || [];
-  const g = d.gallery ?? [];
-  const gallerySlots: Record<number, [string, string?]> = {};
-  if (!blockGallery && blocks.length > 1) {
-    const slots = blocks.length >= 4 ? [1, blocks.length - 2] : [1];
-    slots.forEach((slot, index) => {
-      const first = mediaUrl(g[index * 2]?.image) || mediaUrl(g[index * 2]) || g[index * 2];
-      const second = mediaUrl(g[index * 2 + 1]?.image) || mediaUrl(g[index * 2 + 1]) || g[index * 2 + 1];
-      if (first) gallerySlots[slot] = [first, second || undefined];
-    });
-  }
 
   return (
-    <section className="blocks">
+    <section className="blocks illustrated-blocks">
       {blocks.map((b: any, i: number) => {
         const paragraphs = paragraphList(b.p);
-        const blockImages = Array.isArray(b.galleryImages)
-          ? b.galleryImages.map((item: any) => mediaUrl(item?.image || item)).filter(Boolean)
-          : [];
+        const blockImage = mediaUrl(b.galleryImage);
 
         return (
-          <Fragment key={b.id || b.h || b.title || i}>
-            <Reveal className="block">
-              <div className="block-head">
-                <span>0{i + 1}</span>
-                <h2>{b.h || b.title}</h2>
-                {(b.sub || b.subtitle) && <h3>{b.sub || b.subtitle}</h3>}
-              </div>
-              <Prose p={paragraphs} />
-            </Reveal>
-            {blockImages.length > 0 ? (
-              <Duo a={blockImages[0]} b={blockImages[1]} />
-            ) : blockGallery && gallerySlots[i] ? (
-              <Duo a={gallerySlots[i][0] as never} b={gallerySlots[i][1] as never} />
-            ) : null}
-          </Fragment>
+          <Reveal
+            key={b.id || b.h || b.title || i}
+            className={`block${blockImage ? " with-image" : ""}${i % 2 === 1 ? " flip" : ""}`}
+          >
+            {blockImage && (
+              <figure className="block-image">
+                <img
+                  src={blockImage}
+                  alt={b.h || b.title || ""}
+                  loading="lazy"
+                />
+                <figcaption>
+                  {d.hero?.eyebrow || "Itmenaan Estate"} · {String(i + 1).padStart(2, "0")}
+                </figcaption>
+              </figure>
+            )}
+
+            <div className="block-head">
+              <span>0{i + 1}</span>
+              <h2>{b.h || b.title}</h2>
+              {(b.sub || b.subtitle) && (
+                <h3>{b.sub || b.subtitle}</h3>
+              )}
+            </div>
+
+            <Prose p={paragraphs} />
+          </Reveal>
         );
       })}
     </section>
   );
 }
+
 
 function StayExtras({ data }: { data: any }) {
   const [stays, setStays] = useState<any[]>([]);
@@ -202,7 +204,7 @@ function StayExtras({ data }: { data: any }) {
   );
 }
 
-function ExpExtras() {
+function ExpExtras({ pageData }: { pageData: any }) {
   const [experiences, setExperiences] = useState<any[]>([]);
 
   useEffect(() => {
@@ -232,6 +234,7 @@ function ExpExtras() {
   }, []);
 
   return (
+  <>
     <section className="exp-grid">
       {experiences.map((c, i) => {
         const card = c.cardContent || {};
@@ -257,8 +260,102 @@ function ExpExtras() {
         );
       })}
     </section>
+
+    <ExperienceCompendium data={pageData} />
+  </>
+);
+}
+
+function ExperienceCompendium({ data }: { data: any }) {
+  const compendium = data?.compendium;
+  if (!compendium) return null;
+
+  return (
+    <section className="compendium">
+      <Reveal className="compendium-heading">
+        <p className="eyebrow">{compendium.eyebrow}</p>
+        <h2>{compendium.title}</h2>
+        <p className="compendium-heading-intro">{compendium.intro}</p>
+      </Reveal>
+
+      <div className="compendium-chapters">
+        {(compendium.categories || []).map((chapter: any, i: number) => (
+          <Reveal
+            key={chapter.id || i}
+            className="compendium-chapter"
+            as="article"
+          >
+            <div className="compendium-image">
+              {chapter.image && (
+                <img
+                  src={mediaUrl(chapter.image)}
+                  alt={chapter.title || ""}
+                  loading="lazy"
+                />
+              )}
+              <span>CHAPTER {chapter.number || String(i + 1).padStart(2, "0")}</span>
+            </div>
+
+            <div className="compendium-copy">
+              <p className="eyebrow">
+                {chapter.number || String(i + 1).padStart(2, "0")} · Itmenaan experiences
+              </p>
+
+              <h3>{chapter.title}</h3>
+
+              <p className="compendium-intro">{chapter.description}</p>
+
+              <ol>
+                {(chapter.items || []).map((item: any, j: number) => (
+                  <li key={item.id || j}>
+                    <span>
+                      {chapter.number || String(i + 1).padStart(2, "0")}.{j + 1}
+                    </span>
+                    <p>{item.title}</p>
+                  </li>
+                ))}
+              </ol>
+
+              {chapter.buttonUrl && (
+                <Cta to={chapter.buttonUrl}>
+                  {chapter.buttonLabel || `Discover ${chapter.title}`}
+                </Cta>
+              )}
+            </div>
+          </Reveal>
+        ))}
+      </div>
+    </section>
   );
 }
+
+function ExperienceDiscoveries({ data }: { data: any }) {
+  const discoveries = data?.discoveries;
+
+  if (!discoveries || !discoveries.items?.length) return null;
+
+  return (
+    <section className="discoveries">
+      <Reveal className="discoveries-head">
+        <p className="eyebrow light">{discoveries.eyebrow}</p>
+        <h2>{discoveries.title}</h2>
+        <p>
+          {discoveries.intro || "Experiences are shaped around the season, local conditions and the pace you prefer."}
+        </p>
+      </Reveal>
+
+      <div className="discoveries-list">
+        {discoveries.items.map((item: any, i: number) => (
+          <Reveal key={item.id || i} className="discovery-item">
+            <span>{String(i + 1).padStart(2, "0")}</span>
+            <h3>{item.title}</h3>
+          </Reveal>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 
 function OurWorldExtras({ data }: { data: any }) {
   const cards = Array.isArray(data?.cards) ? data.cards : [];
@@ -344,16 +441,22 @@ function JourneyExtras({ data }: { data: any }) {
   );
 }
 
+
 function JournalExtras({ data }: { data: any }) {
   const [blogs, setBlogs] = useState<any[]>([]);
 
   useEffect(() => {
     const controller = new AbortController();
 
-    fetch("/api/journal?limit=100&depth=2", { signal: controller.signal })
-      .then((res) => res.json())
+    fetch("/api/journal?limit=100&depth=2", {
+      signal: controller.signal,
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Journal request failed");
+        return res.json();
+      })
       .then((result) => {
-        if (Array.isArray(result?.docs) && result.docs.length > 0) {
+        if (Array.isArray(result?.docs)) {
           setBlogs(result.docs);
         }
       })
@@ -364,58 +467,75 @@ function JournalExtras({ data }: { data: any }) {
     return () => controller.abort();
   }, []);
 
-  const groupedBlogs = blogs.reduce((acc: any, blog: any) => {
-    const cat = blog.category || "Stories from the Estate";
-    if (!acc[cat]) acc[cat] = [];
-    acc[cat].push(blog);
-    return acc;
-  }, {});
-
+  const [lead, ...stories] = blogs;
   const lb = data?.letterBand || {};
-  const heading = lb.heading || "A letter from the mountains.";
-  const p1 = lb.paragraph1 || "Occasionally, we send stories, seasonal observations and invitations from Itmenaan.";
-  const p2 = lb.paragraph2 || "No unnecessary noise. Just something worth reading.";
+
+  if (!lead) return null;
 
   return (
     <>
-      {/* Figma ke jaisa exact wide 3 Column Grid Layout */}
-      <section style={{ width: "100%", maxWidth: "1440px", margin: "0 auto", padding: "80px 40px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "50px", alignItems: "start" }}>
-          {Object.entries(groupedBlogs).map(([category, items]: [string, any], groupIdx: number) => (
-            <div key={category || groupIdx} style={{ display: "flex", flexDirection: "column", width: "100%" }}>
-              <h2 style={{ fontSize: "2rem", fontFamily: "serif", fontWeight: 400, borderBottom: "1px solid rgba(0,0,0,0.15)", paddingBottom: "20px", marginBottom: "35px", letterSpacing: "-0.01em" }}>
-                {category}
-              </h2>
-              <ol style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "35px" }}>
-                {items.map((b: any, i: number) => (
-                  <li key={b.id || b.slug || i}>
-                    <Link to={`/journal/${b.slug}`} style={{ textDecoration: "none", color: "inherit", display: "flex", gap: "20px", alignItems: "flex-start" }}>
-                      <span style={{ fontSize: "0.9rem", opacity: 0.5, paddingTop: "3px", minWidth: "22px" }}>0{i + 1}</span>
-                      <div style={{ flex: 1 }}>
-                        <h3 style={{ fontSize: "1.35rem", marginBottom: "8px", fontWeight: 400, fontFamily: "serif", lineHeight: 1.3 }}>{b.title}</h3>
-                        <p style={{ fontSize: "0.95rem", opacity: 0.7, lineHeight: 1.6, margin: 0 }}>{b.summary || ""}</p>
-                      </div>
-                    </Link>
-                  </li>
-                ))}
-              </ol>
+      <section className="magazine">
+        <Reveal className="magazine-lead" as="article">
+          <Link to={`/journal/${lead.slug}`} className="magazine-lead-link">
+            <div className="magazine-lead-img">
+              <img src={mediaUrl(lead.image)} alt={lead.title} loading="lazy" />
             </div>
+            <div className="magazine-lead-copy">
+              <p className="eyebrow">{lead.category}</p>
+              <span className="magazine-issue">Letter 01 · A long read</span>
+              <h2>{lead.title}</h2>
+              <p>{lead.summary}</p>
+              <span className="magazine-read">A five-minute read</span>
+            </div>
+          </Link>
+        </Reveal>
+
+        <div className="magazine-grid">
+          {stories.map((story, i) => (
+            <Reveal
+              key={story.id || story.slug}
+              className={`story-card story-${i + 1}`}
+              as="article"
+            >
+              <Link to={`/journal/${story.slug}`} className="story-card-link">
+                <div className="story-image">
+                  <img
+                    src={mediaUrl(story.image)}
+                    alt={story.title}
+                    loading="lazy"
+                  />
+                </div>
+                <div className="story-copy">
+                  <p className="eyebrow">{story.category}</p>
+                  <h3>{story.title}</h3>
+                  <p>{story.summary}</p>
+                  <span>Letter {String(i + 2).padStart(2, "0")}</span>
+                </div>
+              </Link>
+            </Reveal>
           ))}
         </div>
       </section>
 
-      <section className="letter-band" style={{ margin: 0 }}>
+      <section className="letter-band">
         <Reveal>
           <MountainMark />
-          <h2>{heading}</h2>
-          <p>{p1}</p>
-          <p className="pull">{p2}</p>
+          <h2>{lb.heading || "A letter from the mountains."}</h2>
+          <p>
+            {lb.paragraph1 ||
+              "Occasionally, we send stories, seasonal observations and invitations from Itmenaan."}
+          </p>
+          <p className="pull">
+            {lb.paragraph2 ||
+              "No unnecessary noise. Just something worth reading."}
+          </p>
           <Newsletter />
         </Reveal>
       </section>
     </>
   );
 }
+
 
 function ContactExtras({ data }: { data: any }) {
   const arrivalSec = data?.arrivalSection || {};
@@ -477,20 +597,34 @@ function ContactAfter({ data }: { data: any }) {
 }
 
 
-function BookAfter() {
+
+function BookAfter({ data }: { data: any }) {
+  const booking = data?.bookingSection || {};
+  const links = pageLinks(booking.links);
+
   return (
     <section className="contact-form-section book">
       <Reveal className="contact-info">
-        <p className="eyebrow">Check availability</p>
-        <h2>Choose your dates.</h2>
-        <CtaRow links={[["Cottages & Rooms", "/stay"], ["Journeys & Offers", "/journeys"]]} />
+        <p className="eyebrow">{booking.eyebrow || "Check availability"}</p>
+        <h2>{booking.title || "Choose your dates."}</h2>
+        <CtaRow
+          links={links.length ? links : [
+            ["Cottages & Rooms", "/stay"],
+            ["Journeys & Offers", "/journeys"]
+          ]}
+        />
       </Reveal>
       <Reveal className="contact-form">
-        <EnquiryForm mode="book" />
+        <EnquiryForm
+  mode="book"
+  title={booking.formHeading}
+  successMessage={booking.successMessage}
+/>
       </Reveal>
     </section>
   );
 }
+
 
 export default function ContentPage({ data: staticData }: { data: PageData }) {
   const [pageData, setPageData] = useState<any>(staticData);
@@ -861,7 +995,7 @@ export default function ContentPage({ data: staticData }: { data: PageData }) {
 
   const before = {
     "stay-index": <StayExtras data={d} />,
-    "exp-index": <ExpExtras />,
+    "exp-index": <ExpExtras pageData={d} />,
     "our-world-sub": <OurWorldSeasons data={d} />,
     journeys: <JourneyExtras data={d} />,
     journal: <JournalExtras data={d} />, 
@@ -869,7 +1003,7 @@ export default function ContentPage({ data: staticData }: { data: PageData }) {
     standard: null,
     book: null,
   }[d.kind];
-  const after = d.kind === "contact" ? <ContactAfter /> : d.kind === "book" ? <BookAfter /> : null;
+  const after = d.kind === "contact" ? <ContactAfter /> : d.kind === "book" ? <BookAfter data={d} /> : null;
   const cta = d.cta ?? {
     h: "Perhaps what you are looking for is already here.",
     p: "A few days in the mountains. A little distance from the familiar. Time to read, wander, reconnect, or simply be.",
@@ -890,8 +1024,12 @@ export default function ContentPage({ data: staticData }: { data: PageData }) {
       
       {before}
       
-      {/* Journal page par extra/faltu blocks render nahi honge */}
-      {d.kind !== "journal" && <Blocks d={d} />}
+      {d.kind !== "journal" && <Blocks d={d} /> }
+
+      {d.discoveries && (
+  <ExperienceDiscoveries data={d} />
+)}
+
       
       {after}
 

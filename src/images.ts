@@ -22,7 +22,7 @@ export const img = {
   i24: "/images/img24.jpg",
   i25: "/images/img25.jpg",
   i26: "/images/img26.jpg",
-  i27: "/images/img27.jpg",
+  i27: "/images/img30.jpg",
   i28: "/images/img28.jpg",
   i29: "/images/img29.jpg",
   "rare-ocmb": "/images/rare-ocmb.png",
