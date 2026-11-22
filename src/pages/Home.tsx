@@ -39,7 +39,9 @@ export default function Home() {
       document.title = "Itmenaan Estate | Boutique Himalayan Retreat in Kumaon";
     }
 
-    fetch('/api/globals/homepage')
+    fetch('/api/globals/homepage?depth=2', {
+  cache: 'no-store',
+})
       .then((res) => res.json())
       .then((data) => {
         if (data) setPageData(data);
