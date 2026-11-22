@@ -366,6 +366,10 @@ const HomepageGlobal: GlobalConfig = {
   admin: {
     group: 'Pages',
   },
+  access: {
+    read: () => true,
+    update: ({ req }) => Boolean(req.user),
+  },
   hooks: {
     afterRead: [
       ({ doc }) => {
