@@ -20,6 +20,10 @@ const Experiences: CollectionConfig = {
     useAsTitle: 'title',
     group: 'Collections',
   },
+  access: {
+  read: () => true,
+  update: ({ req }) => Boolean(req.user),
+},
   fields: [
     { name: 'title', type: 'text', required: true },
     { name: 'slug', type: 'text', required: true, unique: true, index: true },
@@ -127,6 +131,10 @@ const Experiences: CollectionConfig = {
 const Stays: CollectionConfig = {
   slug: 'stays',
   admin: { useAsTitle: 'title', group: 'Collections' },
+  access: {
+  read: () => true,
+  update: ({ req }) => Boolean(req.user),
+},
   fields: [
     { name: 'title', type: 'text', required: true },
     { name: 'seoTitle', type: 'text', label: 'SEO Page Title' },
@@ -202,6 +210,10 @@ const LodgeSubPages: CollectionConfig = {
     useAsTitle: 'title',
     group: 'Collections',
   },
+  access: {
+  read: () => true,
+  update: ({ req }) => Boolean(req.user),
+},
   fields: [
     { name: 'title', type: 'text', required: true },
     { name: 'slug', type: 'text', required: true, unique: true, index: true },
@@ -259,8 +271,9 @@ const OurWorldSubPages: CollectionConfig = {
     group: 'Collections',
   },
   access: {
-    read: () => true,
-  },
+  read: () => true,
+  update: ({ req }) => Boolean(req.user),
+},
   fields: [
     { name: 'title', type: 'text', required: true },
     { name: 'slug', type: 'text', required: true },
@@ -308,8 +321,9 @@ const Journal: CollectionConfig = {
     group: 'Collections',
   },
   access: {
-    read: () => true,
-  },
+  read: () => true,
+  update: ({ req }) => Boolean(req.user),
+},
   fields: [
     { name: 'title', type: 'text', required: true },
     { name: 'slug', type: 'text', required: true, unique: true },
@@ -607,6 +621,10 @@ const TheLodgePageGlobal: GlobalConfig = {
   slug: 'the-lodge-page',
   label: 'The Lodge Page',
   admin: { group: 'Pages' },
+  access: {
+  read: () => true,
+  update: ({ req }) => Boolean(req.user),
+},
   fields: [
     {
       name: 'hero',
@@ -704,6 +722,10 @@ const KumaonKitchenPageGlobal: GlobalConfig = {
   slug: 'kumaon-kitchen-page',
   label: 'The Kumaon Kitchen Page',
   admin: { group: 'Pages' },
+  access: {
+  read: () => true,
+  update: ({ req }) => Boolean(req.user),
+},
   fields: [
     {
       name: 'hero',
@@ -790,6 +812,10 @@ const StaysPageGlobal: GlobalConfig = {
   slug: 'stays-page',
   label: 'Stay Page',
   admin: { group: 'Pages' },
+  access: {
+  read: () => true,
+  update: ({ req }) => Boolean(req.user),
+},
   fields: [
     { name: 'seoTitle', type: 'text', label: 'SEO Page Title', defaultValue: 'Cottages & Rooms in Kumaon | Itmenaan Estate' },
     {
@@ -907,6 +933,10 @@ const ExperiencesPageGlobal: GlobalConfig = {
   slug: 'experiences-page',
   label: 'Experiences Page',
   admin: { group: 'Pages' },
+  access: {
+  read: () => true,
+  update: ({ req }) => Boolean(req.user),
+},
   fields: [
     {
       name: 'hero',
@@ -1000,9 +1030,10 @@ const OurWorldPage: GlobalConfig = {
   admin: {
     group: 'Pages',
   },
-  access: {
-    read: () => true,
-  },
+ access: {
+  read: () => true,
+  update: ({ req }) => Boolean(req.user),
+},
   fields: [
     { name: 'seoTitle', type: 'text' },
     {
@@ -1048,8 +1079,9 @@ const JourneysPage: GlobalConfig = {
     group: 'Pages',
   },
   access: {
-    read: () => true,
-  },
+  read: () => true,
+  update: ({ req }) => Boolean(req.user),
+},
   fields: [
     { name: 'seoTitle', type: 'text', label: 'Page / SEO Title' },
     {
@@ -1126,8 +1158,9 @@ const JournalPage: GlobalConfig = {
     group: 'Pages',
   },
   access: {
-    read: () => true,
-  },
+  read: () => true,
+  update: ({ req }) => Boolean(req.user),
+},
   fields: [
     { name: 'seoTitle', type: 'text', label: 'Page / SEO Title' },
     {
@@ -1163,9 +1196,10 @@ const ContactPage: GlobalConfig = {
   admin: {
     group: 'Pages',
   },
-  access: {
-    read: () => true,
-  },
+ access: {
+  read: () => true,
+  update: ({ req }) => Boolean(req.user),
+},
   fields: [
     { name: 'seoTitle', type: 'text', label: 'Page / SEO Title' },
     {
@@ -1250,8 +1284,9 @@ const BookPageGlobal: GlobalConfig = {
     group: 'Pages',
   },
   access: {
-    read: () => true,
-  },
+  read: () => true,
+  update: ({ req }) => Boolean(req.user),
+},
   fields: [
     { name: 'seoTitle', type: 'text' },
     {
@@ -1315,6 +1350,10 @@ const HeaderNavigationGlobal: GlobalConfig = {
   admin: {
     group: 'Globals',
   },
+  access: {
+  read: () => true,
+  update: ({ req }) => Boolean(req.user),
+},
   hooks: {
     afterRead: [
       ({ doc }) => {
@@ -1368,6 +1407,10 @@ const FooterGlobal: GlobalConfig = {
   admin: {
     group: 'Globals',
   },
+  access: {
+  read: () => true,
+  update: ({ req }) => Boolean(req.user),
+},
   hooks: {
     afterRead: [
       ({ doc }) => {
